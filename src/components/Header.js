@@ -5,35 +5,62 @@ import { usePathname } from 'next/navigation'
 import { Leaf, Menu, X, User, LogOut } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
 
 export default function Header() {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
-  // Monitor authentication state
+  // Ensure component is mounted on client side
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
+    setMounted(true)
   }, [])
+
+  // Monitor authentication state only on client side
+  useEffect(() => {
+    if (!mounted) return
+
+    const initAuth = async () => {
+      try {
+        const { onAuthStateChanged } = await import('firebase/auth')
+        const { auth } = await import('@/lib/firebase')
+        
+        if (auth) {
+          const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser)
+            setLoading(false)
+          })
+          return unsubscribe
+        } else {
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+        setLoading(false)
+      }
+    }
+
+    const cleanup = initAuth()
+    return () => {
+      if (cleanup) cleanup.then(fn => fn && fn())
+    }
+  }, [mounted])
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth)
-      setMenuOpen(false)
+      const { signOut } = await import('firebase/auth')
+      const { auth } = await import('@/lib/firebase')
+      
+      if (auth) {
+        await signOut(auth)
+        setMenuOpen(false)
+      }
     } catch (error) {
       console.error('Error signing out:', error)
     }
   }
-
-  // Navigation items based on authentication status
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -41,7 +68,6 @@ export default function Header() {
     { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' }
   ]
-
 
   return (
     <motion.header
@@ -85,19 +111,19 @@ export default function Header() {
                 )}
               </Link>
             ))}
-            {!user && (
+            
+            {/* Show login when not authenticated or still loading */}
+            {mounted && (!user && !loading) && (
               <div className="flex items-center space-x-8 pl-8 border-l border-[#AEC8A4]">
                 <Link
-                  key={'/auth'}
-                  href={'/auth'}
-                  // className="   hover:bg-[#AEC8A4] transition-all duration-300 group"
+                  href="/auth"
                   className={`font-medium transition-colors relative flex items-center gap-2 bg-[#3B3B1A] hover:bg-[#AEC8A4] px-8 py-2 rounded-full ${
                     pathname === '/auth'
                       ? 'text-[#8A784E]'
                       : 'text-[#E7EFC7] hover:text-[#3B3B1A]'
                   }`}
                 >
-                  <span >Login</span>
+                  <span>Login</span>
                   {pathname === '/auth' && (
                     <motion.div
                       layoutId="activeNav"
@@ -109,11 +135,10 @@ export default function Header() {
             )}
 
             {/* User Profile & Sign Out (Desktop) */}
-            {user && !loading && (
+            {mounted && user && !loading && (
               <div className="flex items-center space-x-8 pl-8 border-l border-[#AEC8A4]">
                 <Link
-                  key={'/dashboard'}
-                  href={'/dashboard'}
+                  href="/dashboard"
                   className={`font-medium transition-colors relative flex items-center gap-2 bg-[#3B3B1A] px-2 py-2 rounded-full ${
                     pathname === '/dashboard'
                       ? 'text-white bg-[#8A784E]'  
@@ -121,7 +146,6 @@ export default function Header() {
                   }`}
                 >
                   <User className="w-5 h-5" />
-                  {/* <span>{user.displayName || 'Dashboard'}</span>  */}
                   {pathname === '/dashboard' && (
                     <motion.div
                       layoutId="activeNav"
@@ -135,8 +159,15 @@ export default function Header() {
                   title="Sign Out"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span >Sign Out</span>
+                  <span>Sign Out</span>
                 </button>
+              </div>
+            )}
+
+            {/* Loading state for desktop */}
+            {mounted && loading && (
+              <div className="flex items-center space-x-8 pl-8 border-l border-[#AEC8A4]">
+                <div className="text-[#8A784E] text-sm">Loading...</div>
               </div>
             )}
           </div>
@@ -178,17 +209,17 @@ export default function Header() {
                 </Link>
               ))}
 
-              {!user && (
+              {/* Mobile login */}
+              {mounted && (!user && !loading) && (
                 <div className="flex flex-col gap-3 w-16 items-center">
                   <Link
-                    key={'/auth'}
-                    href={'/auth'}
+                    href="/auth"
                     onClick={() => setMenuOpen(false)}
                     className={`font-medium px-2 py-1 transition-colors flex items-center space-x-2 bg-[#3B3B1A] hover:bg-[#AEC8A4] rounded-full ${
-                    pathname === '/auth'
-                      ? 'text-[#8A784E]'
-                      : 'text-[#E7EFC7] hover:text-[#3B3B1A]'
-                  }`}
+                      pathname === '/auth'
+                        ? 'text-[#8A784E]'
+                        : 'text-[#E7EFC7] hover:text-[#3B3B1A]'
+                    }`}
                   >
                     <span>Login</span> 
                   </Link>
@@ -196,11 +227,10 @@ export default function Header() {
               )}
 
               {/* User Profile & Sign Out (Mobile) */}
-              {user && !loading && (
+              {mounted && user && !loading && (
                 <div className="flex flex-col gap-3">
                   <Link
-                    key={'/dashboard'}
-                    href={'/dashboard'}
+                    href="/dashboard"
                     onClick={() => setMenuOpen(false)}
                     className={`font-medium px-2 py-1 transition-colors flex items-center space-x-2 ${
                       pathname === '/dashboard'
@@ -222,7 +252,7 @@ export default function Header() {
               )}
 
               {/* Loading state for mobile */}
-              {loading && (
+              {mounted && loading && (
                 <div className="px-2 py-1 text-[#8A784E] text-sm">
                   Loading...
                 </div>
