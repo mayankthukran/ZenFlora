@@ -24,18 +24,26 @@ export default function Header() {
 
     const initAuth = async () => {
       try {
-        const { onAuthStateChanged } = await import('firebase/auth')
         const { auth } = await import('@/lib/firebase')
         
-        if (auth) {
-          const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser)
-            setLoading(false)
-          })
-          return unsubscribe
-        } else {
+        // Check if Firebase is properly initialized
+        if (!auth) {
+          console.warn('Firebase auth not initialized - check environment variables')
           setLoading(false)
+          return
         }
+
+        const { onAuthStateChanged } = await import('firebase/auth')
+        
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser)
+          setLoading(false)
+        }, (error) => {
+          console.error('Auth state change error:', error)
+          setLoading(false)
+        })
+        
+        return unsubscribe
       } catch (error) {
         console.error('Auth initialization error:', error)
         setLoading(false)
@@ -50,13 +58,16 @@ export default function Header() {
 
   const handleSignOut = async () => {
     try {
-      const { signOut } = await import('firebase/auth')
       const { auth } = await import('@/lib/firebase')
       
-      if (auth) {
-        await signOut(auth)
-        setMenuOpen(false)
+      if (!auth) {
+        console.warn('Firebase auth not available')
+        return
       }
+
+      const { signOut } = await import('firebase/auth')
+      await signOut(auth)
+      setMenuOpen(false)
     } catch (error) {
       console.error('Error signing out:', error)
     }

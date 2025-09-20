@@ -69,15 +69,26 @@ export default function AuthPage() {
     setLoading(true)
     
     try {
+      const { auth } = await import('@/lib/firebase')
+      
+      if (!auth) {
+        setMessage({ type: 'error', text: 'Authentication service is not available. Please check configuration.' })
+        setLoading(false)
+        return
+      }
+
       if (resetMode) {
+        const { sendPasswordResetEmail } = await import('firebase/auth')
         await sendPasswordResetEmail(auth, formData.email)
         setMessage({ type: 'success', text: 'Password reset email sent! Check your inbox.' })
         setResetMode(false)
       } else if (isLogin) {
+        const { signInWithEmailAndPassword } = await import('firebase/auth')
         await signInWithEmailAndPassword(auth, formData.email, formData.password)
         setMessage({ type: 'success', text: 'Welcome back!' })
         setTimeout(() => router.push('/dashboard'), 1000)
       } else {
+        const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth')
         const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
         
         if (formData.name) {
@@ -93,6 +104,9 @@ export default function AuthPage() {
       let errorMessage = 'Something went wrong. Please try again.'
       
       switch (error.code) {
+        case 'auth/invalid-api-key':
+          errorMessage = 'Authentication service configuration error. Please contact support.'
+          break
         case 'auth/user-not-found':
           errorMessage = 'No account found with this email address.'
           break
@@ -125,6 +139,15 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true)
     try {
+      const { auth } = await import('@/lib/firebase')
+      
+      if (!auth) {
+        setMessage({ type: 'error', text: 'Authentication service is not available. Please check configuration.' })
+        setLoading(false)
+        return
+      }
+
+      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth')
       const provider = new GoogleAuthProvider()
       await signInWithPopup(auth, provider)
       setMessage({ type: 'success', text: 'Signed in successfully!' })
@@ -134,6 +157,8 @@ export default function AuthPage() {
       
       if (error.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in was cancelled.'
+      } else if (error.code === 'auth/invalid-api-key') {
+        errorMessage = 'Authentication service configuration error. Please contact support.'
       }
       
       setMessage({ type: 'error', text: errorMessage })
@@ -166,7 +191,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="lg:h-screen bg-[#E7EFC7] flex">
+    <div className="min-h-screen bg-[#E7EFC7] flex">
       {/* Left Side - Information Panel */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 relative">
         <div className="absolute inset-0">
@@ -426,6 +451,32 @@ export default function AuthPage() {
 
               {!resetMode && (
                 <>
+                  {/* Google Sign In */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="mt-6"
+                  >
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-[#E7EFC7]"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="px-2 bg-white text-[#8A784E]">Or continue with</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={loading}
+                      className="w-full mt-4 bg-white border-2 border-[#E7EFC7] text-[#3B3B1A] py-3 rounded-lg font-medium hover:border-[#AEC8A4] hover:bg-[#E7EFC7]/20 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 text-sm"
+                    >
+                      Continue with Google
+                    </button>
+                  </motion.div>
+
                   {/* Forgot Password */}
                   {isLogin && (
                     <motion.div
