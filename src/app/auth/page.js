@@ -200,7 +200,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#E7EFC7] flex">
+    <div className="min-h-screen lg:h-screen bg-[#E7EFC7] flex">
       {/* Left Side - Information Panel */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 relative">
         <div className="absolute inset-0">
