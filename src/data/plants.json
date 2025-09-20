@@ -1,0 +1,164 @@
+[
+  {
+    "id": "peace-lily",
+    "name": "Peace Lily",
+    "scientificName": "Spathiphyllum wallisii",
+    "tagline": "Air Purifier",
+    "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&auto=format&fit=crop",
+    "heroImage": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=800&auto=format&fit=crop",
+    "description": "The Peace Lily is a graceful flowering plant known for its elegant white blooms and deep green foliage. Native to tropical regions of the Americas and southeastern Asia, it's beloved for its ability to thrive in low-light conditions while purifying indoor air.",
+    "benefits": ["Excellent air purifier", "Thrives in low light", "Indicates watering needs"],
+    "care": {
+      "sunlight": "Low to medium indirect light",
+      "water": "When soil feels dry, about weekly",
+      "soil": "Well-draining potting mix",
+      "humidity": "Moderate to high (40-60%)"
+    },
+    "proTip": "The leaves will droop slightly when it needs water - it's the plant's way of communicating with you!",
+    "mindfulnessPrompt": "Like the Peace Lily's graceful drooping when thirsty, notice how your body signals its needs. What is it asking for today?",
+    "category": ["Low Light", "Air Purifying", "Beginner Friendly"]
+  },
+  {
+    "id": "snake-plant",
+    "name": "Snake Plant",
+    "scientificName": "Sansevieria trifasciata",
+    "tagline": "Low Maintenance",
+    "image": "https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?w=800&h=600&auto=format&fit=crop",
+    "heroImage": "https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?w=1200&h=800&auto=format&fit=crop",
+    "description": "The Snake Plant, also known as Mother-in-Law's Tongue, is a resilient succulent with striking upright leaves marked with green and yellow patterns. This hardy plant is perfect for beginners and busy lifestyles.",
+    "benefits": ["Nearly indestructible", "Converts CO2 to oxygen at night", "Tolerates neglect"],
+    "care": {
+      "sunlight": "Low to bright indirect light",
+      "water": "Every 2-4 weeks, let soil dry completely",
+      "soil": "Well-draining cactus mix",
+      "humidity": "Low to moderate (30-50%)"
+    },
+    "proTip": "Overwatering is the most common mistake - when in doubt, wait another week!",
+    "mindfulnessPrompt": "Observe the Snake Plant's steady, upright growth. Stand tall like its leaves and take three deep breaths, feeling your own strength and resilience.",
+    "category": ["Low Light", "Beginner Friendly", "Low Maintenance"]
+  },
+  {
+    "id": "pothos",
+    "name": "Golden Pothos",
+    "scientificName": "Epipremnum aureum",
+    "tagline": "Trailing Beauty",
+    "image": "https://images.unsplash.com/photo-1586993389204-03ad5b30c788?w=800&h=600&auto=format&fit=crop",
+    "heroImage": "https://images.unsplash.com/photo-1586993389204-03ad5b30c788?w=1200&h=800&auto=format&fit=crop",
+    "description": "The Golden Pothos is a flowing vine with heart-shaped leaves in vibrant green and golden yellow. Known for its trailing growth habit, it's perfect for hanging baskets or climbing up moss poles.",
+    "benefits": ["Fast-growing and forgiving", "Beautiful trailing vines", "Air purifying qualities"],
+    "care": {
+      "sunlight": "Medium to bright indirect light",
+      "water": "When top inch of soil is dry",
+      "soil": "Regular potting mix",
+      "humidity": "Moderate (40-60%)"
+    },
+    "proTip": "Trim leggy vines to encourage fuller growth, and propagate the cuttings in water!",
+    "mindfulnessPrompt": "Watch how the Pothos reaches and grows toward light. Reflect on what you're naturally drawn toward and how you can honor that growth.",
+    "category": ["Beginner Friendly", "Air Purifying", "Fast Growing"]
+  },
+  {
+    "id": "rubber-tree",
+    "name": "Rubber Tree",
+    "scientificName": "Ficus elastica",
+    "tagline": "Statement Maker",
+    "image": "https://images.unsplash.com/photo-1592150621744-aca64f48394a?w=800&h=600&auto=format&fit=crop",
+    "heroImage": "https://images.unsplash.com/photo-1592150621744-aca64f48394a?w=1200&h=800&auto=format&fit=crop",
+    "description": "The Rubber Tree is a stunning houseplant with glossy, dark green leaves that can grow quite large. Native to India and Southeast Asia, it makes an impressive statement piece in any room.",
+    "benefits": ["Impressive size and presence", "Glossy, beautiful foliage", "Relatively easy care"],
+    "care": {
+      "sunlight": "Bright, indirect light",
+      "water": "When top 2 inches of soil are dry",
+      "soil": "Well-draining potting mix",
+      "humidity": "Moderate (40-50%)"
+    },
+    "proTip": "Wipe the leaves regularly with a damp cloth to keep them glossy and help the plant photosynthesize better.",
+    "mindfulnessPrompt": "Notice the Rubber Tree's broad, reaching leaves. Spread your arms wide and breathe deeply, embracing your own capacity to take up space.",
+    "category": ["Statement Plant", "Medium Care", "Air Purifying"]
+  },
+  {
+    "id": "monstera",
+    "name": "Monstera Deliciosa",
+    "scientificName": "Monstera deliciosa",
+    "tagline": "Fenestrated Wonder",
+    "image": "https://images.unsplash.com/photo-1545239705-1564e58b9e4c?w=800&h=600&auto=format&fit=crop",
+    "heroImage": "https://images.unsplash.com/photo-1545239705-1564e58b9e4c?w=1200&h=800&auto=format&fit=crop",
+    "description": "The Monstera Deliciosa, also known as the Swiss Cheese Plant, is famous for its large, split leaves that develop unique holes and splits as the plant matures. It's a tropical climbing plant that brings jungle vibes indoors.",
+    "benefits": ["Dramatic, architectural foliage", "Develops unique leaf patterns", "Fast-growing with proper care"],
+    "care": {
+      "sunlight": "Bright, indirect light",
+      "water": "When top inch of soil is dry",
+      "soil": "Well-draining, chunky mix",
+      "humidity": "High (50-60%)"
+    },
+    "proTip": "Provide a moss pole or trellis for climbing - the leaves will grow larger and develop more splits!",
+    "mindfulnessPrompt": "Like the Monstera's leaves that develop splits and holes over time, consider how life's openings and changes create new beauty in your own growth.",
+    "category": ["Statement Plant", "Medium Care", "Climbing"]
+  },
+  {
+    "id": "zz-plant",
+    "name": "ZZ Plant",
+    "scientificName": "Zamioculcas zamiifolia",
+    "tagline": "Drought Tolerant",
+    "image": "https://images.unsplash.com/photo-1591958911259-bee2173bdcf6?w=800&h=600&auto=format&fit=crop",
+    "heroImage": "https://images.unsplash.com/photo-1591958911259-bee2173bdcf6?w=1200&h=800&auto=format&fit=crop",
+    "description": "The ZZ Plant is a striking succulent with glossy, dark green leaves that grow in graceful, arching stems. Native to Eastern Africa, it's incredibly drought-tolerant and perfect for low-light spaces.",
+    "benefits": ["Extremely drought tolerant", "Tolerates low light", "Glossy, attractive foliage"],
+    "care": {
+      "sunlight": "Low to bright indirect light",
+      "water": "Every 2-3 weeks, let soil dry completely",
+      "soil": "Well-draining cactus mix",
+      "humidity": "Low to moderate (30-40%)"
+    },
+    "proTip": "The rhizomes store water, so yellow leaves usually mean overwatering - less is more!",
+    "mindfulnessPrompt": "The ZZ Plant thrives with minimal care, storing what it needs. Reflect on the resources you already have within you and how you can nurture yourself simply.",
+    "category": ["Low Light", "Beginner Friendly", "Drought Tolerant"]
+  },
+  {
+      "id": "spider-plant",
+      "name": "Spider Plant",
+      "scientificName": "Chlorophytum comosum",
+      "tagline": "Easy Propagator",
+      "image": "https://images.unsplash.com/photo-1566146991569-696da38bb775?w=800&h=600&auto=format&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1566146991569-696da38bb775?w=800&h=600&auto=format&fit=crop",
+      "description": "The Spider Plant is nature's gift that keeps on giving. This cheerful, arching plant produces adorable plantlets that dangle like spiders from a web, making it perfect for sharing with friends and expanding your plant family effortlessly.",
+      "benefits": [
+        "Produces baby plants for easy propagation",
+        "Excellent air purifier",
+        "Safe for pets",
+        "Adaptable to various conditions"
+      ],
+      "care": {
+        "sunlight": "Bright, indirect light",
+        "water": "Keep soil lightly moist",
+        "soil": "Well-draining potting mix",
+        "humidity": "Normal household humidity"
+      },
+      "proTip": "Leave the babies (plantlets) attached to the mother plant until they develop roots, then cut and pot them up!",
+      "mindfulnessPrompt": "Watch your Spider Plant nurture its babies while still connected. Reflect on the ways you can support others while maintaining your own growth and well-being.",
+      "category": ["pet-safe", "air-purifying", "easy-propagation", "beginner-friendly"]
+    },
+    {
+      "id": "fiddle-leaf-fig",
+      "name": "Fiddle Leaf Fig",
+      "scientificName": "Ficus lyrata",
+      "tagline": "Dramatic Statement",
+      "image": "https://images.unsplash.com/photo-1583003873269-8a35c3a3d6e5?w=800&h=600&auto=format&fit=crop",
+      "heroImage": "https://images.unsplash.com/photo-1583003873269-8a35c3a3d6e5?w=800&h=600&auto=format&fit=crop",
+      "description": "The Fiddle Leaf Fig is the supermodel of the plant world—stunning, dramatic, and a little high-maintenance. Its large, violin-shaped leaves create an instant focal point and bring a touch of elegance to any room willing to meet its specific needs.",
+      "benefits": [
+        "Large, architectural leaves",
+        "Makes a bold design statement",
+        "Can grow quite tall indoors",
+        "Impressive presence in any room"
+      ],
+      "care": {
+        "sunlight": "Bright, consistent indirect light",
+        "water": "Water when top 1-2 inches of soil are dry",
+        "soil": "Well-draining, fertile potting mix",
+        "humidity": "Moderate to high humidity"
+      },
+      "proTip": "Fiddle Leaf Figs hate change! Find the perfect spot and avoid moving them around to prevent leaf drop.",
+      "mindfulnessPrompt": "Notice how your Fiddle Leaf Fig responds to consistency in care. Consider the areas of your life that also flourish with steady, mindful attention.",
+      "category": ["statement-plant", "large-leaves", "dramatic", "architectural"]
+    }
+]
