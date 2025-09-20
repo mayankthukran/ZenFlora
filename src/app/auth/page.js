@@ -66,29 +66,24 @@ export default function AuthPage() {
     e.preventDefault()
     if (!validateForm()) return
 
+    // Check if auth is available
+    if (!auth) {
+      setMessage({ type: 'error', text: 'Authentication service not available' })
+      return
+    }
+
     setLoading(true)
     
     try {
-      const { auth } = await import('@/lib/firebase')
-      
-      if (!auth) {
-        setMessage({ type: 'error', text: 'Authentication service is not available. Please check configuration.' })
-        setLoading(false)
-        return
-      }
-
       if (resetMode) {
-        const { sendPasswordResetEmail } = await import('firebase/auth')
         await sendPasswordResetEmail(auth, formData.email)
         setMessage({ type: 'success', text: 'Password reset email sent! Check your inbox.' })
         setResetMode(false)
       } else if (isLogin) {
-        const { signInWithEmailAndPassword } = await import('firebase/auth')
         await signInWithEmailAndPassword(auth, formData.email, formData.password)
         setMessage({ type: 'success', text: 'Welcome back!' })
         setTimeout(() => router.push('/dashboard'), 1000)
       } else {
-        const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth')
         const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
         
         if (formData.name) {
@@ -101,11 +96,12 @@ export default function AuthPage() {
         setTimeout(() => router.push('/dashboard'), 1000)
       }
     } catch (error) {
+      console.error('Auth error:', error)
       let errorMessage = 'Something went wrong. Please try again.'
       
       switch (error.code) {
         case 'auth/invalid-api-key':
-          errorMessage = 'Authentication service configuration error. Please contact support.'
+          errorMessage = 'Firebase configuration error'
           break
         case 'auth/user-not-found':
           errorMessage = 'No account found with this email address.'
@@ -128,6 +124,8 @@ export default function AuthPage() {
         case 'auth/invalid-credential':
           errorMessage = 'Invalid login credentials. Please try again.'
           break
+        default:
+          errorMessage = error.message || 'Authentication failed'
       }
       
       setMessage({ type: 'error', text: errorMessage })
@@ -137,28 +135,39 @@ export default function AuthPage() {
   }
 
   const handleGoogleSignIn = async () => {
+    if (!auth) {
+      setMessage({ type: 'error', text: 'Authentication service not available' })
+      return
+    }
+
     setLoading(true)
     try {
-      const { auth } = await import('@/lib/firebase')
-      
-      if (!auth) {
-        setMessage({ type: 'error', text: 'Authentication service is not available. Please check configuration.' })
-        setLoading(false)
-        return
-      }
-
-      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth')
       const provider = new GoogleAuthProvider()
+      provider.addScope('email')
+      provider.addScope('profile')
+      
       await signInWithPopup(auth, provider)
       setMessage({ type: 'success', text: 'Signed in successfully!' })
       setTimeout(() => router.push('/dashboard'), 1000)
     } catch (error) {
+      console.error('Google sign-in error:', error)
       let errorMessage = 'Google sign-in failed. Please try again.'
       
-      if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Sign-in was cancelled.'
-      } else if (error.code === 'auth/invalid-api-key') {
-        errorMessage = 'Authentication service configuration error. Please contact support.'
+      switch (error.code) {
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Sign-in was cancelled.'
+          break
+        case 'auth/popup-blocked':
+          errorMessage = 'Pop-up was blocked. Please allow pop-ups and try again.'
+          break
+        case 'auth/unauthorized-domain':
+          errorMessage = 'This domain is not authorized for Google sign-in.'
+          break
+        case 'auth/cancelled-popup-request':
+          errorMessage = 'Sign-in was cancelled. Please try again.'
+          break
+        default:
+          errorMessage = error.message || 'Google sign-in failed'
       }
       
       setMessage({ type: 'error', text: errorMessage })
@@ -188,6 +197,22 @@ export default function AuthPage() {
     return isLogin 
       ? 'Continue your mindful journey with plants'
       : 'Begin your journey toward mindful plant care'
+  }
+
+  // Show error if Firebase auth is not available
+  if (!auth) {
+    return (
+      <div className="min-h-screen bg-[#E7EFC7] flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Leaf className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h1>
+          <p className="text-gray-600 mb-4">Firebase authentication is not properly configured.</p>
+          <Link href="/" className="text-blue-600 hover:underline">Return to Home</Link>
+        </div>
+      </div>
+    )
   }
 
   return (
