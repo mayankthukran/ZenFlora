@@ -14,7 +14,7 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from 'firebase/auth'
-// import { auth } from '@/lib/firebase'
+import { auth } from '@/lib/firebase'
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -426,32 +426,6 @@ export default function AuthPage() {
 
               {!resetMode && (
                 <>
-                  {/* Google Sign In */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    className="mt-6"
-                  >
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-[#E7EFC7]"></div>
-                      </div>
-                      <div className="relative flex justify-center text-xs">
-                        <span className="px-2 bg-white text-[#8A784E]">Or continue with</span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleGoogleSignIn}
-                      disabled={loading}
-                      className="w-full mt-4 bg-white border-2 border-[#E7EFC7] text-[#3B3B1A] py-3 rounded-lg font-medium hover:border-[#AEC8A4] hover:bg-[#E7EFC7]/20 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 text-sm"
-                    >
-                      Continue with Google
-                    </button>
-                  </motion.div>
-
                   {/* Forgot Password */}
                   {isLogin && (
                     <motion.div

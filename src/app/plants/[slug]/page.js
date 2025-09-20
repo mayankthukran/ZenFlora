@@ -7,6 +7,7 @@ import { use } from 'react';
 import { motion } from 'framer-motion'
 import { ArrowLeft, Sun, Droplets, Mountain, Wind, Lightbulb, Heart, ArrowRight } from 'lucide-react'
 import plantsData from '@/data/plants.json'
+import Header from '@/components/Header';
 
 export default function PlantDetailPage({ params }) {
   const { slug } = use(params);
@@ -27,6 +28,7 @@ export default function PlantDetailPage({ params }) {
 
   return (
     <div className="min-h-screen bg-[#E7EFC7]">
+      <Header />
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Search, Filter, ArrowRight } from 'lucide-react'
 import plantsData from '@/data/plants.json'
+import Header from '@/components/Header'
 
 export default function PlantsPage() {
 
@@ -29,6 +30,7 @@ export default function PlantsPage() {
 
   return (
     <div className="min-h-screen bg-[#E7EFC7]">
+      <Header />
       <section className="py-16 bg-[#AEC8A4]">
         <div className="container mx-auto px-6">
           <motion.div

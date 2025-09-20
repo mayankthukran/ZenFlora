@@ -1,5 +1,6 @@
 'use client'
 
+import Header from '@/components/Header'
 import { motion } from 'framer-motion'
 import { Mail, MessageSquare, Leaf, Heart, Send, Phone, MapPin } from 'lucide-react'
 import { useState } from 'react'
@@ -29,6 +30,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-[#E7EFC7]">
+        <Header />
       {/* Hero Section */}
       <section className="bg-[#AEC8A4] py-20">
         <div className="container mx-auto px-6">

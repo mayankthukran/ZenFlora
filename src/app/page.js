@@ -5,12 +5,14 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ArrowRight, Leaf, Heart, Droplets } from 'lucide-react'
 import plantsData from '@/data/plants.json'
+import Header from '@/components/Header'
 
 export default function HomePage() {
   const featuredPlants = plantsData.slice(0, 2)
 
   return (
     <div className="min-h-screen">
+      <Header />
       <motion.section 
         initial={{x:-2000, opacity: 0 }}
         animate={{x:0, opacity: 1 }}

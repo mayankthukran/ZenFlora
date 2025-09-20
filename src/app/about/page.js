@@ -3,11 +3,13 @@
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Heart, Leaf, Users, Star, ExternalLink } from 'lucide-react'
+import Header from '@/components/Header'
 
 export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-[#E7EFC7]">
+      <Header />
       <section className="bg-[#AEC8A4] py-20">
         <div className="container mx-auto px-6">
           <motion.div
