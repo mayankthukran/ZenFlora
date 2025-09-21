@@ -24,7 +24,10 @@ export default function DashboardPage() {
     displayName: '',
     bio: '',
     joinDate: '',
-    plantingExperience: 'Beginner'
+    plantingExperience: 'Beginner',
+    location: '',
+    favoriteePlantType: '',
+    plantingGoals: ''
   })
   const router = useRouter()
 
@@ -43,13 +46,25 @@ export default function DashboardPage() {
   }, [router])
 
   const initializeUserData = (currentUser) => {
-    // Initialize user profile data
-    setProfileData({
-      displayName: currentUser.displayName || 'Plant Lover',
-      bio: 'Finding peace through plants 🌱',
-      joinDate: new Date(currentUser.metadata.creationTime).toLocaleDateString(),
-      plantingExperience: 'Beginner'
-    })
+    // Load saved profile data from localStorage or use defaults
+    const savedProfile = localStorage.getItem(`profileData_${currentUser.uid}`)
+    
+    if (savedProfile) {
+      setProfileData(JSON.parse(savedProfile))
+    } else {
+      // Initialize user profile data with defaults
+      const defaultProfile = {
+        displayName: currentUser.displayName || 'Plant Lover',
+        bio: 'Finding peace through plants 🌱',
+        joinDate: new Date(currentUser.metadata.creationTime).toLocaleDateString(),
+        plantingExperience: 'Beginner',
+        location: '',
+        favoriteePlantType: '',
+        plantingGoals: ''
+      }
+      setProfileData(defaultProfile)
+      localStorage.setItem(`profileData_${currentUser.uid}`, JSON.stringify(defaultProfile))
+    }
 
     // Load profile photo from localStorage
     const savedProfilePhoto = localStorage.getItem(`profilePhoto_${currentUser.uid}`)
@@ -152,9 +167,23 @@ export default function DashboardPage() {
   }
 
   const updateProfile = () => {
-    // In a real app, this would update the user's profile in the database
+    if (user) {
+      // Save updated profile data to localStorage
+      localStorage.setItem(`profileData_${user.uid}`, JSON.stringify(profileData))
+      setEditingProfile(false)
+      
+      // Show success message (optional)
+      alert('Profile updated successfully!')
+    }
+  }
+
+  const cancelProfileEdit = () => {
+    // Reset profile data to saved version
+    const savedProfile = localStorage.getItem(`profileData_${user.uid}`)
+    if (savedProfile) {
+      setProfileData(JSON.parse(savedProfile))
+    }
     setEditingProfile(false)
-    console.log('Profile updated:', profileData)
   }
 
   if (loading) {
@@ -231,37 +260,87 @@ export default function DashboardPage() {
               <div className="flex-1">
                 {editingProfile ? (
                   <div className="space-y-4">
-                    <input
-                      type="text"
-                      value={profileData.displayName}
-                      onChange={(e) => setProfileData({...profileData, displayName: e.target.value})}
-                      className="text-2xl font-bold text-[#3B3B1A] bg-transparent border-b-2 border-[#AEC8A4] focus:outline-none"
-                    />
-                    <textarea
-                      value={profileData.bio}
-                      onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
-                      className="text-[#8A784E] bg-[#E7EFC7] p-3 rounded-lg focus:outline-none resize-none w-full"
-                      rows={2}
-                    />
-                    <select
-                      value={profileData.plantingExperience}
-                      onChange={(e) => setProfileData({...profileData, plantingExperience: e.target.value})}
-                      className="bg-[#E7EFC7] p-2 rounded-lg text-[#3B3B1A] focus:outline-none"
-                    >
-                      <option value="Beginner">Beginner</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Expert">Expert</option>
-                    </select>
-                    <div className="flex gap-2">
+                    <div>
+                      <label className="block text-sm font-medium text-[#3B3B1A] mb-1">Display Name</label>
+                      <input
+                        type="text"
+                        value={profileData.displayName}
+                        onChange={(e) => setProfileData({...profileData, displayName: e.target.value})}
+                        className="w-full text-lg font-bold text-[#3B3B1A] bg-[#E7EFC7] p-3 rounded-lg focus:outline-none border-2 border-transparent focus:border-[#AEC8A4]"
+                        placeholder="Your display name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#3B3B1A] mb-1">Bio</label>
+                      <textarea
+                        value={profileData.bio}
+                        onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                        className="w-full text-[#8A784E] bg-[#E7EFC7] p-3 rounded-lg focus:outline-none resize-none border-2 border-transparent focus:border-[#AEC8A4]"
+                        rows={3}
+                        placeholder="Tell us about your plant journey..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#3B3B1A] mb-1">Experience Level</label>
+                        <select
+                          value={profileData.plantingExperience}
+                          onChange={(e) => setProfileData({...profileData, plantingExperience: e.target.value})}
+                          className="w-full bg-[#E7EFC7] p-3 rounded-lg text-[#3B3B1A] focus:outline-none border-2 border-transparent focus:border-[#AEC8A4]"
+                        >
+                          <option value="Beginner">Beginner</option>
+                          <option value="Intermediate">Intermediate</option>
+                          <option value="Advanced">Advanced</option>
+                          <option value="Expert">Expert</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-[#3B3B1A] mb-1">Location (optional)</label>
+                        <input
+                          type="text"
+                          value={profileData.location || ''}
+                          onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                          className="w-full bg-[#E7EFC7] p-3 rounded-lg text-[#3B3B1A] focus:outline-none border-2 border-transparent focus:border-[#AEC8A4]"
+                          placeholder="Your city, country"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#3B3B1A] mb-1">Favorite Plant Type (optional)</label>
+                      <input
+                        type="text"
+                        value={profileData.favoriteePlantType || ''}
+                        onChange={(e) => setProfileData({...profileData, favoriteePlantType: e.target.value})}
+                        className="w-full bg-[#E7EFC7] p-3 rounded-lg text-[#3B3B1A] focus:outline-none border-2 border-transparent focus:border-[#AEC8A4]"
+                        placeholder="e.g., Succulents, Tropical plants, Air plants..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#3B3B1A] mb-1">Plant Goals (optional)</label>
+                      <textarea
+                        value={profileData.plantingGoals || ''}
+                        onChange={(e) => setProfileData({...profileData, plantingGoals: e.target.value})}
+                        className="w-full bg-[#E7EFC7] p-3 rounded-lg text-[#3B3B1A] focus:outline-none resize-none border-2 border-transparent focus:border-[#AEC8A4]"
+                        rows={2}
+                        placeholder="What do you hope to achieve with your plant journey?"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
                       <button
                         onClick={updateProfile}
-                        className="bg-[#AEC8A4] text-white px-4 py-2 rounded-lg hover:bg-[#8A784E] transition-colors"
+                        className="bg-[#AEC8A4] text-white px-6 py-2 rounded-lg hover:bg-[#8A784E] transition-colors font-medium"
                       >
-                        Save
+                        Save Changes
                       </button>
                       <button
-                        onClick={() => setEditingProfile(false)}
-                        className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+                        onClick={cancelProfileEdit}
+                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors font-medium"
                       >
                         Cancel
                       </button>
@@ -274,21 +353,48 @@ export default function DashboardPage() {
                       <button
                         onClick={() => setEditingProfile(true)}
                         className="text-[#AEC8A4] hover:text-[#8A784E] transition-colors"
+                        title="Edit profile"
                       >
                         <Edit3 className="w-5 h-5" />
                       </button>
                     </div>
-                    <p className="text-[#8A784E] mb-3">{profileData.bio}</p>
-                    <div className="flex flex-wrap gap-4 text-sm text-[#8A784E]">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Joined {profileData.joinDate}</span>
+                    
+                    <p className="text-[#8A784E] mb-4 leading-relaxed">{profileData.bio}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#8A784E]">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>Joined {profileData.joinDate}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Leaf className="w-4 h-4" />
+                          <span>{profileData.plantingExperience} Plant Parent</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Leaf className="w-4 h-4" />
-                        <span>{profileData.plantingExperience} Plant Parent</span>
+                      
+                      <div className="space-y-2">
+                        {profileData.location && (
+                          <div className="flex items-center gap-2">
+                            <Home className="w-4 h-4" />
+                            <span>{profileData.location}</span>
+                          </div>
+                        )}
+                        {profileData.favoriteePlantType && (
+                          <div className="flex items-center gap-2">
+                            <Heart className="w-4 h-4" />
+                            <span>Loves {profileData.favoriteePlantType}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
+
+                    {profileData.plantingGoals && (
+                      <div className="mt-4 p-4 bg-[#E7EFC7] rounded-lg">
+                        <h4 className="font-medium text-[#3B3B1A] mb-2">Plant Goals</h4>
+                        <p className="text-[#8A784E] text-sm leading-relaxed">{profileData.plantingGoals}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

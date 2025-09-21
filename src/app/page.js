@@ -3,17 +3,118 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, Leaf, Heart, Droplets } from 'lucide-react'
+import { ArrowRight, Leaf, Heart, Droplets, Plus, Star, LogIn } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 import plantsData from '@/data/plants.json'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export default function HomePage() {
+  const [user, setUser] = useState(null)
+  const [userPlants, setUserPlants] = useState([])
+  const [favoritePlants, setFavoritePlants] = useState([])
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const featuredPlants = plantsData.slice(0, 2)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+      if (currentUser) {
+        loadUserData(currentUser)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  const loadUserData = (currentUser) => {
+    const savedPlants = localStorage.getItem(`userPlants_${currentUser.uid}`)
+    const savedFavorites = localStorage.getItem(`favoritePlants_${currentUser.uid}`)
+    
+    if (savedPlants) {
+      setUserPlants(JSON.parse(savedPlants))
+    }
+    
+    if (savedFavorites) {
+      setFavoritePlants(JSON.parse(savedFavorites))
+    }
+  }
+
+  const handleAuthRequired = () => {
+    setShowLoginPrompt(true)
+    setTimeout(() => setShowLoginPrompt(false), 3000)
+  }
+
+  const toggleFavorite = (plant) => {
+    if (!user) {
+      handleAuthRequired()
+      return
+    }
+
+    const isFavorite = favoritePlants.some(p => p.id === plant.id)
+    let updatedFavorites
+
+    if (isFavorite) {
+      updatedFavorites = favoritePlants.filter(p => p.id !== plant.id)
+    } else {
+      updatedFavorites = [...favoritePlants, plant]
+    }
+
+    setFavoritePlants(updatedFavorites)
+    localStorage.setItem(`favoritePlants_${user.uid}`, JSON.stringify(updatedFavorites))
+  }
+
+  const addToGarden = (plant) => {
+    if (!user) {
+      handleAuthRequired()
+      return
+    }
+
+    const newPlant = {
+      ...plant,
+      id: `${plant.id}_${Date.now()}`,
+      originalId: plant.id,
+      nickname: plant.name,
+      datePlanted: new Date().toISOString().split('T')[0],
+      careHistory: [],
+      notes: ''
+    }
+
+    const updatedPlants = [...userPlants, newPlant]
+    setUserPlants(updatedPlants)
+    localStorage.setItem(`userPlants_${user.uid}`, JSON.stringify(updatedPlants))
+  }
+
+  const isPlantFavorite = (plantId) => {
+    return favoritePlants.some(p => p.id === plantId)
+  }
+
+  const isPlantInGarden = (plantId) => {
+    return userPlants.some(p => p.originalId === plantId)
+  }
 
   return (
     <div className="min-h-screen">
       <Header />
+      
+      {/* Login Prompt */}
+      {showLoginPrompt && (
+        <motion.div
+          initial={{ opacity: 0, y: -100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -100 }}
+          className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-[#3B3B1A] text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3"
+        >
+          <LogIn className="w-5 h-5" />
+          <span>Please log in to save plants to your collection</span>
+          <Link href="/auth" className="bg-[#AEC8A4] px-3 py-1 rounded text-sm hover:bg-[#8A784E] transition-colors">
+            Login
+          </Link>
+        </motion.div>
+      )}
+
       <motion.section 
         initial={{x:-2000, opacity: 0 }}
         animate={{x:0, opacity: 1 }}
@@ -138,10 +239,10 @@ export default function HomePage() {
               <motion.div
                 key={plant.id}
                 initial={{ x: -300, y:-200, opacity: 0 } }
-                  whileInView={{ x: 0,y:0, opacity: 1 }}
-                  viewport={{ always: true }}
+                whileInView={{ x: 0,y:0, opacity: 1 }}
+                viewport={{ always: true }}
                 transition={{ delay: index * 0.5, duration: 0.8 }}
-                className="bg-[#E7EFC7] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+                className="bg-[#E7EFC7] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group relative"
               >
                 <div className="relative h-64">
                   <Image
@@ -150,7 +251,46 @@ export default function HomePage() {
                     fill
                     className="object-cover"
                   />
+                  
+                  {/* Action Buttons Overlay */}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        toggleFavorite(plant)
+                      }}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all transform hover:scale-110 ${
+                        isPlantFavorite(plant.id)
+                          ? 'bg-red-500 text-white shadow-lg'
+                          : 'bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-red-500 hover:text-white'
+                      }`}
+                      title={isPlantFavorite(plant.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <Heart className={`w-5 h-5 ${isPlantFavorite(plant.id) ? 'fill-current' : ''}`} />
+                    </button>
+
+                    {isPlantInGarden(plant.id) ? (
+                      <div
+                        className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                        title="In your garden"
+                      >
+                        <Star className="w-5 h-5 fill-current" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          addToGarden(plant)
+                        }}
+                        className="w-10 h-10 bg-[#AEC8A4] text-white rounded-full flex items-center justify-center hover:bg-[#8A784E] transition-colors transform hover:scale-110 shadow-lg"
+                        title="Add to garden"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
+                
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-2xl font-display font-medium text-[#3B3B1A]">
@@ -160,6 +300,23 @@ export default function HomePage() {
                       {plant.tagline}
                     </span>
                   </div>
+
+                  {/* Status Indicators */}
+                  <div className="flex gap-2 mb-4">
+                    {isPlantFavorite(plant.id) && (
+                      <span className="flex items-center gap-1 text-xs text-red-500 bg-red-50 px-2 py-1 rounded-full">
+                        <Heart className="w-3 h-3 fill-current" />
+                        Favorite
+                      </span>
+                    )}
+                    {isPlantInGarden(plant.id) && (
+                      <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                        <Star className="w-3 h-3 fill-current" />
+                        In Garden
+                      </span>
+                    )}
+                  </div>
+
                   <p className="text-[#8A784E] mb-6 leading-relaxed">
                     {plant.description.slice(0, 150)}...
                   </p>

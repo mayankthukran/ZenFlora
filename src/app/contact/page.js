@@ -3,7 +3,7 @@
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { motion } from 'framer-motion'
-import { Mail, MessageSquare, Leaf, Heart, Send, Phone, MapPin } from 'lucide-react'
+import { Leaf, Send, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 
 export default function ContactPage() {
@@ -13,6 +13,9 @@ export default function ContactPage() {
     subject: '',
     message: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null)
+  const [openFAQ, setOpenFAQ] = useState(null)
 
   const handleChange = (e) => {
     setFormData({
@@ -21,24 +24,84 @@ export default function ContactPage() {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    // Reset form
-    setFormData({ name: '', email: '', subject: '', message: '' })
+    setIsSubmitting(true)
+    setSubmitStatus(null)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        setSubmitStatus('error')
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const faqData = [
+    {
+      question: "How do I know which plant is right for me?",
+      answer: "Our plant directory includes detailed care information and difficulty levels for each plant. Start with beginner-friendly plants like Snake Plants or Pothos if you're new to plant care. Consider your living space's light conditions and how much time you can dedicate to plant care."
+    },
+    {
+      question: "Can I save plants to view later?",
+      answer: "Yes! When you create an account, you can favorite plants and add them to your personal garden collection. This helps you keep track of plants you're interested in and those you already own."
+    },
+    {
+      question: "Do I need to create an account to browse plants?",
+      answer: "No, you can browse all our plant information without an account. However, creating an account allows you to save favorites, track your plant collection, and personalize your ZenFlora experience."
+    },
+    {
+      question: "How accurate is the plant care information?",
+      answer: "Our plant care information is curated from reputable horticultural sources and verified by plant care experts. However, care needs can vary based on your specific environment, so we recommend observing your plants and adjusting care accordingly."
+    },
+    {
+      question: "Can I contribute plant information or corrections?",
+      answer: "We welcome community input! If you notice any inaccuracies or have suggestions for improvement, please use the contact form above or email us directly. We review all submissions carefully."
+    },
+    {
+      question: "Is ZenFlora free to use?",
+      answer: "Yes, ZenFlora is completely free to use. Our mission is to make plant care knowledge accessible to everyone who wants to bring more peace and nature into their lives."
+    },
+    {
+      question: "How do I reset my password?",
+      answer: "On the login page, click 'Forgot your password?' and enter your email address. You'll receive a password reset link via email. If you don't receive it, check your spam folder or contact us for assistance."
+    },
+    {
+      question: "Can I delete my account?",
+      answer: "Yes, you can delete your account and all associated data by contacting us through this form. We'll process your request within 48 hours and confirm when your data has been removed."
+    }
+  ]
+
+  const toggleFAQ = (index) => {
+    setOpenFAQ(openFAQ === index ? null : index)
   }
 
   return (
     <div className="min-h-screen bg-[#E7EFC7]">
-        <Header />
+      <Header />
+      
       {/* Hero Section */}
       <section className="bg-[#AEC8A4] py-20">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ always: true }}
+            viewport={{ once: true }}
             transition={{ duration: 1 }}
             className="text-center max-w-4xl mx-auto"
           >
@@ -46,77 +109,9 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="text-xl text-[#8A784E] leading-relaxed">
-              Have questions about plant care? Want to share your plant journey? 
-              We'd love to hear from you and help you cultivate your green sanctuary.
+              Have questions about plant care or ZenFlora? We're here to help you on your mindful plant journey.
             </p>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Info Cards */}
-      <section className="py-16 bg-[#E7EFC7]">
-        <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ always: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl font-display font-light mb-4 text-[#3B3B1A]">
-              Ways to Connect
-            </h2>
-            <p className="text-lg text-[#8A784E] max-w-2xl mx-auto">
-              Choose the way that feels most comfortable for you to reach out.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {[
-              {
-                icon: <Mail className="w-8 h-8 text-white" />,
-                title: 'Email Us',
-                desc: 'Drop us a line and we\'ll get back to you within 24 hours.',
-                contact: 'hello@zenflora.com',
-                delay: 0.1
-              },
-              {
-                icon: <MessageSquare className="w-8 h-8 text-white" />,
-                title: 'Plant Questions',
-                desc: 'Need help with plant care? Our community is here to help.',
-                contact: 'plantcare@zenflora.com',
-                delay: 0.2
-              },
-              {
-                icon: <Heart className="w-8 h-8 text-white" />,
-                title: 'Share Your Story',
-                desc: 'Tell us about your plant journey and mindful moments.',
-                contact: 'stories@zenflora.com',
-                delay: 0.3
-              }
-            ].map(({ icon, title, desc, contact, delay }) => (
-              <motion.div
-                key={title}
-                initial={{ x: -300, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                viewport={{ always: true }}
-                transition={{ delay, duration: 0.6 }}
-                className="bg-white rounded-2xl p-8 text-center shadow-md hover:shadow-lg transition-shadow"
-              >
-                <div className="w-16 h-16 bg-[#AEC8A4] rounded-full flex items-center justify-center mx-auto mb-6">
-                  {icon}
-                </div>
-                <h3 className="text-xl font-medium mb-4 text-[#3B3B1A]">{title}</h3>
-                <p className="text-[#8A784E] leading-relaxed mb-4">{desc}</p>
-                <a 
-                  href={`mailto:${contact}`}
-                  className="text-[#AEC8A4] hover:text-[#8A784E] transition-colors font-medium"
-                >
-                  {contact}
-                </a>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -127,7 +122,7 @@ export default function ContactPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ always: true }}
+              viewport={{ once: true }}
               transition={{ duration: 0.6 }}
               className="bg-white rounded-3xl p-8 md:p-12 shadow-xl"
             >
@@ -143,16 +138,36 @@ export default function ContactPage() {
                 </p>
               </div>
 
+              {submitStatus === 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-center"
+                >
+                  Thank you for your message! We'll get back to you within 24 hours.
+                </motion.div>
+              )}
+
+              {submitStatus === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-center"
+                >
+                  Sorry, there was an error sending your message. Please try again or email us directly.
+                </motion.div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <motion.div
                     initial={{ x: -50, opacity: 0 }}
                     whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ always: true }}
+                    viewport={{ once: true }}
                     transition={{ delay: 0.1, duration: 0.5 }}
                   >
                     <label className="block text-[#3B3B1A] font-medium mb-2">
-                      Your Name
+                      Your Name *
                     </label>
                     <input
                       type="text"
@@ -168,11 +183,11 @@ export default function ContactPage() {
                   <motion.div
                     initial={{ x: 50, opacity: 0 }}
                     whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ always: true }}
+                    viewport={{ once: true }}
                     transition={{ delay: 0.2, duration: 0.5 }}
                   >
                     <label className="block text-[#3B3B1A] font-medium mb-2">
-                      Email Address
+                      Email Address *
                     </label>
                     <input
                       type="email"
@@ -189,11 +204,11 @@ export default function ContactPage() {
                 <motion.div
                   initial={{ y: 50, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
-                  viewport={{ always: true }}
+                  viewport={{ once: true }}
                   transition={{ delay: 0.3, duration: 0.5 }}
                 >
                   <label className="block text-[#3B3B1A] font-medium mb-2">
-                    Subject
+                    Subject *
                   </label>
                   <select
                     name="subject"
@@ -207,6 +222,7 @@ export default function ContactPage() {
                     <option value="general-inquiry">General Inquiry</option>
                     <option value="sharing-story">Sharing My Plant Story</option>
                     <option value="website-feedback">Website Feedback</option>
+                    <option value="technical-support">Technical Support</option>
                     <option value="collaboration">Collaboration</option>
                     <option value="other">Other</option>
                   </select>
@@ -215,11 +231,11 @@ export default function ContactPage() {
                 <motion.div
                   initial={{ y: 50, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
-                  viewport={{ always: true }}
+                  viewport={{ once: true }}
                   transition={{ delay: 0.4, duration: 0.5 }}
                 >
                   <label className="block text-[#3B3B1A] font-medium mb-2">
-                    Message
+                    Message *
                   </label>
                   <textarea
                     name="message"
@@ -235,16 +251,17 @@ export default function ContactPage() {
                 <motion.div
                   initial={{ y: 50, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
-                  viewport={{ always: true }}
+                  viewport={{ once: true }}
                   transition={{ delay: 0.5, duration: 0.5 }}
                   className="text-center"
                 >
                   <button
                     type="submit"
-                    className="inline-flex items-center bg-[#AEC8A4] text-white px-8 py-4 rounded-full font-medium hover:bg-[#8A784E] transition-all duration-300 group transform hover:scale-105"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center bg-[#AEC8A4] text-white px-8 py-4 rounded-full font-medium hover:bg-[#8A784E] transition-all duration-300 group transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
-                    Send Message
-                    <Send className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                    {!isSubmitting && <Send className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />}
                   </button>
                 </motion.div>
               </form>
@@ -253,71 +270,96 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Response Time & Philosophy */}
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="w-16 h-16 bg-[#AEC8A4] bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <HelpCircle className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-3xl font-display font-light mb-4 text-[#3B3B1A]">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-[#8A784E] max-w-2xl mx-auto">
+              Find quick answers to common questions about ZenFlora and plant care.
+            </p>
+          </motion.div>
+
+          <div className="max-w-4xl mx-auto space-y-4">
+            {faqData.map((faq, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="bg-[#E7EFC7] rounded-2xl overflow-hidden"
+              >
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#AEC8A4] hover:bg-opacity-20 transition-colors"
+                >
+                  <h3 className="font-medium text-[#3B3B1A] pr-4">
+                    {faq.question}
+                  </h3>
+                  {openFAQ === index ? (
+                    <ChevronUp className="w-5 h-5 text-[#8A784E] flex-shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-[#8A784E] flex-shrink-0" />
+                  )}
+                </button>
+                {openFAQ === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-6 pb-4"
+                  >
+                    <p className="text-[#8A784E] leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Response Philosophy */}
       <section className="py-16 bg-[#E7EFC7]">
         <div className="container mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: -100 }}
+            initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ always: true }}
+            viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto"
+            className="max-w-4xl mx-auto text-center"
           >
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-[#AEC8A4] bg-opacity-20 rounded-2xl p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-[#E7EFC7] rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-[#3B3B1A]" />
-                  </div>
-                  <h3 className="text-xl font-medium text-[#3B3B1A]">Response Time</h3>
-                </div>
-                <p className="text-[#8A784E] leading-relaxed mb-4">
-                  Just like caring for plants, we believe in thoughtful, mindful responses. 
-                  You can expect to hear back from us within 24 hours on weekdays.
-                </p>
-                <p className="text-sm text-[#8A784E]">
-                  For urgent plant care questions, check our plant care guides or reach out 
-                  to the plant community on social media for faster assistance.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-[#AEC8A4] rounded-full flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-medium text-[#3B3B1A]">Our Approach</h3>
-                </div>
-                <p className="text-[#8A784E] leading-relaxed mb-4">
-                  Every message matters to us. Whether you're sharing a plant success story, 
-                  asking for care advice, or simply wanting to connect, we read and respond 
-                  to each message personally.
-                </p>
-                <p className="text-sm text-[#8A784E]">
-                  ZenFlora is more than a website—it's a community of plant lovers finding 
-                  peace through nature.
-                </p>
-              </div>
+            <div className="bg-[#AEC8A4] bg-opacity-20 rounded-3xl p-8 md:p-12">
+              <Leaf className="w-16 h-16 text-white mx-auto mb-6" />
+              <h3 className="text-2xl font-display font-light mb-4 text-[#3B3B1A]">
+                Our Commitment to You
+              </h3>
+              <p className="text-lg text-[#8A784E] leading-relaxed mb-4">
+                Just like caring for plants requires patience and attention, we believe in thoughtful, mindful responses. 
+                Every message is important to us, and we'll get back to you within 24 hours.
+              </p>
+              <p className="text-[#8A784E] italic">
+                "In every question, there's an opportunity to grow together."
+              </p>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: -50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ always: true }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-center mt-12 p-8 bg-[#AEC8A4] bg-opacity-20 rounded-2xl"
-            >
-              <Leaf className="w-12 h-12 text-white mx-auto mb-4" />
-              <p className="text-lg text-[#8A784E] font-medium mb-2">
-                "In every plant, there's a story waiting to bloom."
-              </p>
-              <p className="text-[#8A784E]">
-                We can't wait to hear yours.
-              </p>
-            </motion.div>
           </motion.div>
         </div>
       </section>
+
       <Footer />
     </div>
   )
