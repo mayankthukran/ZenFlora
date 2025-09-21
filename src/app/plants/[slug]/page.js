@@ -3,15 +3,24 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { use } from 'react';
+import { use, useState, useEffect } from 'react';
 import { motion } from 'framer-motion'
-import { ArrowLeft, Sun, Droplets, Mountain, Wind, Lightbulb, Heart, ArrowRight } from 'lucide-react'
+import { ArrowLeft, Sun, Droplets, Mountain, Wind, Lightbulb, Heart, ArrowRight, Plus, Star, LogIn } from 'lucide-react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 import plantsData from '@/data/plants.json'
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function PlantDetailPage({ params }) {
   const { slug } = use(params);
   const plant = plantsData.find(p => p.id === slug)
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [isPlanted, setIsPlanted] = useState(false)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [showAddPlantModal, setShowAddPlantModal] = useState(false)
 
   if (!plant) notFound()
 
@@ -26,9 +35,113 @@ export default function PlantDetailPage({ params }) {
     humidity: Wind
   }
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+      if (currentUser) {
+        loadUserPlantStatus(currentUser)
+      }
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [plant.id])
+
+  const loadUserPlantStatus = (currentUser) => {
+    const savedPlants = localStorage.getItem(`userPlants_${currentUser.uid}`)
+    const savedFavorites = localStorage.getItem(`favoritePlants_${currentUser.uid}`)
+    
+    if (savedPlants) {
+      const userPlants = JSON.parse(savedPlants)
+      setIsPlanted(userPlants.some(p => p.originalId === plant.id))
+    }
+    
+    if (savedFavorites) {
+      const favoritePlants = JSON.parse(savedFavorites)
+      setIsFavorite(favoritePlants.some(p => p.id === plant.id))
+    }
+  }
+
+  const handleAuthRequired = () => {
+    setShowLoginPrompt(true)
+    setTimeout(() => setShowLoginPrompt(false), 3000)
+  }
+
+  const toggleFavorite = () => {
+    if (!user) {
+      handleAuthRequired()
+      return
+    }
+
+    const savedFavorites = localStorage.getItem(`favoritePlants_${user.uid}`)
+    let favoritePlants = savedFavorites ? JSON.parse(savedFavorites) : []
+    
+    if (isFavorite) {
+      favoritePlants = favoritePlants.filter(p => p.id !== plant.id)
+    } else {
+      favoritePlants.push(plant)
+    }
+    
+    localStorage.setItem(`favoritePlants_${user.uid}`, JSON.stringify(favoritePlants))
+    setIsFavorite(!isFavorite)
+  }
+
+  const addPlantToCollection = (nickname = '', datePlanted = new Date().toISOString().split('T')[0]) => {
+    if (!user) {
+      handleAuthRequired()
+      return
+    }
+
+    const savedPlants = localStorage.getItem(`userPlants_${user.uid}`)
+    let userPlants = savedPlants ? JSON.parse(savedPlants) : []
+
+    const newPlant = {
+      ...plant,
+      id: `${plant.id}_${Date.now()}`,
+      originalId: plant.id,
+      nickname: nickname || plant.name,
+      datePlanted,
+      careHistory: [],
+      notes: ''
+    }
+
+    userPlants.push(newPlant)
+    localStorage.setItem(`userPlants_${user.uid}`, JSON.stringify(userPlants))
+    setIsPlanted(true)
+    setShowAddPlantModal(false)
+  }
+
+  const removePlantFromCollection = () => {
+    if (!user) return
+
+    const savedPlants = localStorage.getItem(`userPlants_${user.uid}`)
+    let userPlants = savedPlants ? JSON.parse(savedPlants) : []
+    
+    userPlants = userPlants.filter(p => p.originalId !== plant.id)
+    localStorage.setItem(`userPlants_${user.uid}`, JSON.stringify(userPlants))
+    setIsPlanted(false)
+  }
+
   return (
     <div className="min-h-screen bg-[#E7EFC7]">
       <Header />
+      
+      {/* Login Prompt */}
+      {showLoginPrompt && (
+        <motion.div
+          initial={{ opacity: 0, y: -100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -100 }}
+          className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-[#3B3B1A] text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3"
+        >
+          <LogIn className="w-5 h-5" />
+          <span>Please log in to save plants to your collection</span>
+          <Link href="/auth" className="bg-[#AEC8A4] px-3 py-1 rounded text-sm hover:bg-[#8A784E] transition-colors">
+            Login
+          </Link>
+        </motion.div>
+      )}
+
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -93,6 +206,39 @@ export default function PlantDetailPage({ params }) {
                 {plant.description}
               </p>
 
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 mb-8">
+                <button
+                  onClick={toggleFavorite}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${
+                    isFavorite
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-[#E7EFC7] text-[#3B3B1A] hover:bg-red-500 hover:text-white'
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                  {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                </button>
+
+                {isPlanted ? (
+                  <button
+                    onClick={removePlantFromCollection}
+                    className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transition-colors"
+                  >
+                    <Star className="w-5 h-5 fill-current" />
+                    In My Garden
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => user ? setShowAddPlantModal(true) : handleAuthRequired()}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#AEC8A4] text-white rounded-full font-medium hover:bg-[#8A784E] transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add to My Garden
+                  </button>
+                )}
+              </div>
+
               <div className="mb-8">
                 <h3 className="text-xl font-medium mb-4 text-[#3B3B1A]">
                   Why You'll Love This Plant
@@ -118,6 +264,7 @@ export default function PlantDetailPage({ params }) {
         </div>
       </section>
 
+      {/* Rest of the component remains the same... */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <motion.div
@@ -261,6 +408,84 @@ export default function PlantDetailPage({ params }) {
           </div>
         </section>
       )}
+
+      {/* Add Plant Modal */}
+      {showAddPlantModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-[#3B3B1A]">Add {plant.name}</h2>
+              <button onClick={() => setShowAddPlantModal(false)} className="text-[#8A784E] hover:text-[#3B3B1A]">
+                ×
+              </button>
+            </div>
+
+            <AddPlantForm
+              plant={plant}
+              onSubmit={addPlantToCollection}
+              onCancel={() => setShowAddPlantModal(false)}
+            />
+          </motion.div>
+        </div>
+      )}
+
+      <Footer />
     </div>
+  )
+}
+
+// Add Plant Form Component
+function AddPlantForm({ plant, onSubmit, onCancel }) {
+  const [nickname, setNickname] = useState('')
+  const [datePlanted, setDatePlanted] = useState(new Date().toISOString().split('T')[0])
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSubmit(nickname, datePlanted)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-[#3B3B1A] font-medium mb-2">Nickname (optional)</label>
+        <input
+          type="text"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          placeholder={`My ${plant.name}`}
+          className="w-full p-3 border-2 border-[#E7EFC7] rounded-lg focus:border-[#AEC8A4] focus:outline-none"
+        />
+      </div>
+
+      <div>
+        <label className="block text-[#3B3B1A] font-medium mb-2">Date Planted</label>
+        <input
+          type="date"
+          value={datePlanted}
+          onChange={(e) => setDatePlanted(e.target.value)}
+          className="w-full p-3 border-2 border-[#E7EFC7] rounded-lg focus:border-[#AEC8A4] focus:outline-none"
+        />
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="flex-1 bg-[#AEC8A4] text-white py-3 rounded-lg hover:bg-[#8A784E] transition-colors"
+        >
+          Add to Garden
+        </button>
+      </div>
+    </form>
   )
 }

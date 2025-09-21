@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
         <main className="min-h-screen">
           {children}
         </main>
-        <footer className="bg-[#AEC8A4] border-t border-[#8A784E] py-12">
+        {/* <footer className="bg-[#AEC8A4] border-t border-[#8A784E] py-12">
           <div className="container mx-auto px-6 text-center">
             <p className="text-sm text-[#8A784E]">
               Made with 💚
@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
               © 2025 ZenFlora. Cultivating calm through nature.
             </p>
           </div>
-        </footer>
+        </footer> */}
       </body>
     </html>
   )

@@ -1,5 +1,6 @@
 'use client'
 
+import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { motion } from 'framer-motion'
 import { Mail, MessageSquare, Leaf, Heart, Send, Phone, MapPin } from 'lucide-react'
@@ -317,6 +318,7 @@ export default function ContactPage() {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   )
 }

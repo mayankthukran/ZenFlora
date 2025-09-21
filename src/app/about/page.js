@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Heart, Leaf, Users, Star, ExternalLink } from 'lucide-react'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 export default function AboutPage() {
 
@@ -232,6 +233,7 @@ export default function AboutPage() {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   )
 }

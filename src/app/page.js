@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Leaf, Heart, Droplets } from 'lucide-react'
 import plantsData from '@/data/plants.json'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 export default function HomePage() {
   const featuredPlants = plantsData.slice(0, 2)
@@ -191,6 +192,7 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   )
 }
